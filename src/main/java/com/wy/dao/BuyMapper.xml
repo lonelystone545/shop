@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wy.dao.BuyMapper">
+	<insert id="insertOrdersAndGetId" parameterType="com.wy.pojo.Orders">
+		<selectKey resultType="int" order="AFTER" keyProperty="oid" keyColumn="oid">
+			SELECT LAST_INSERT_ID()
+		</selectKey>
+			insert into orders (total,bid) values (#{total}, #{bid})
+	</insert>
+	
+	<insert id="insertOrderItem" parameterType="com.wy.pojo.BoughtProduct">
+		insert into orderitem (count,price, pid, oid) values (#{number}, #{price}, #{id}, #{oid})
+	</insert>
+</mapper>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wy.dao.ProductMapper">
+	<select id="findProductByPid" parameterType="int" resultType="com.wy.pojo.Product">
+		select pid, pname, summary, detail, price, image from product where pid=#{pid}
+	</select>
+	
+	<select id="findProductByPidForBuyer" resultType="com.wy.pojo.Product">
+		select p.pid, p.pname, p.summary, p.detail, p.price, p.image, m.count as nums, m.price as boughtPrice from product p 
+			left join (select pid, SUM(oi.count) as count, oi.price as price from orders o 
+				left join orderitem oi on o.oid = oi.oid and o.bid=(select bid from buyer where username=#{0}) group by oi.pid ) m on p.pid = m.pid having p.pid=#{1};
+	</select>
+	
+	<delete id="deleteProduct" parameterType="int">
+		delete from product where pid = #{id} 
+	</delete>
+	
+	<select id="getProductByPid" parameterType="int" resultType="com.wy.pojo.Product">
+		select pid, image from product where pid = #{pid};
+	</select>
+	
+	<select id="getProductNums" resultType="java.lang.Integer">
+		select count(*) from product	
+	</select>
+	
+	<insert id="insertProduct" parameterType="com.wy.pojo.Product" useGeneratedKeys="true" keyProperty="pid">
+		insert into product (pname, summary, detail, price, image, sid) values
+			(#{pname}, #{summary}, #{detail}, #{price}, #{image}, #{sid})
+	</insert>
+	
+	<update id="updateProduct" parameterType="com.wy.pojo.Product">
+		update product set pname=#{pname}, summary=#{summary}, detail=#{detail}, image=#{image}, price=#{price} where pid=#{pid};
+	</update>
+</mapper>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="com.wy.dao.HomePageMapper">
+	<select id="getAllProducts" resultType="com.wy.pojo.Product">
+		select pid, pname, price, image from product 
+	</select>
+	
+	<select id="getProductsForBuyer" parameterType="string" resultType="com.wy.pojo.Product">
+		select p.pid, p.pname, p.price, p.image, m.count as nums from product p left join 
+			(select pid, SUM(oi.count) as count from orders o left join orderitem oi on o.oid = oi.oid and o.bid = (select bid from buyer where username=#{username}) group by oi.pid) m 
+				on p.pid=m.pid
+	</select>
+	
+	<select id="getUnboughtProducts" parameterType="string" resultType="com.wy.pojo.Product">
+		select p.pid, p.pname, p.price, p.image from product p where p.pid not in 
+			(select pid from orders o inner join orderitem oi on o.bid = (select bid from buyer where username=#{username}) and o.oid = oi.oid group by oi.pid);
+	</select>	
+	
+	<select id="getProductsForSeller" parameterType="string" resultType="com.wy.pojo.Product">
+		select p.pid, p.pname, p.price, p.image, SUM(oi.count) as nums,sid from product p left join orderitem oi on p.pid=oi.pid group by pid having sid=(select sid from seller where username=#{username})
+	</select>
+</mapper>
